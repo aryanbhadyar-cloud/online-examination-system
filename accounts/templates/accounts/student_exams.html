@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Exam - {{ exam.name }} | ExamSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1600&q=80') center/cover,
+                linear-gradient(135deg, rgba(102, 126, 234, 0.92) 0%, rgba(118, 75, 162, 0.92) 100%);
+            background-blend-mode: overlay;
+            z-index: -1;
+            animation: backgroundShift 25s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: scale(1) translateX(0); }
+            50% { transform: scale(1.08) translateX(15px); }
+        }
+
+        .exam-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exam-title { display: flex; align-items: center; gap: 1rem; }
+        .exam-title i { font-size: 2rem; color: #667eea; }
+        .exam-title div h1 { font-size: 1.6rem; color: #2d3748; margin-bottom: 0.25rem; }
+        .exam-title div p { font-size: 0.95rem; color: #718096; }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .timer-icon { font-size: 1.8rem; color: white; }
+        .timer-text { color: white; }
+        .timer-text p { font-size: 0.85rem; margin-bottom: 0.25rem; opacity: 0.9; }
+        .timer-display { font-size: 1.8rem; font-weight: 700; letter-spacing: 1px; }
+
+        .exam-container { max-width: 1000px; margin: 3rem auto; padding: 0 2rem 3rem; }
+
+        .instructions-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .instructions-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .instructions-header i { font-size: 1.5rem; color: #667eea; }
+        .instructions-header h2 { font-size: 1.4rem; color: #2d3748; }
+
+        .instructions-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .instruction-item i { color: #667eea; margin-top: 0.25rem; }
+        .instruction-item p { color: #4a5568; font-size: 0.95rem; line-height: 1.5; }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .question-marks { color: #667eea; font-weight: 600; font-size: 1rem; }
+
+        .question-text {
+            font-size: 1.15rem;
+            color: #2d3748;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .options-container { display: grid; gap: 1rem; }
+        .option-item { position: relative; }
+        .option-item input[type="radio"] { position: absolute; opacity: 0; }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-item input[type="radio"]:checked + .option-label {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .option-label:hover { border-color: #667eea; transform: translateX(5px); }
+
+        .option-indicator {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .option-item input[type="radio"]:checked + .option-label .option-indicator {
+            border-color: #667eea;
+            background: #667eea;
+        }
+
+        .option-indicator::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .option-item input[type="radio"]:checked + .option-label .option-indicator::after {
+            transform: scale(1);
+        }
+
+        .option-letter { font-weight: 700; color: #4a5568; font-size: 1.1rem; min-width: 30px; }
+        .option-text { color: #2d3748; font-size: 1rem; line-height: 1.5; }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-header h3 { color: #2d3748; font-size: 1.1rem; }
+        .progress-stats { color: #667eea; font-weight: 600; }
+
+        .progress-bar-bg {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        .submit-container {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .warning-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .warning-message i { font-size: 1.3rem; }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .submit-btn i { font-size: 1.2rem; }
+
+        .calculator-note {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .calculator-note i { font-size: 2rem; color: #667eea; }
+        .calculator-note p { color: #2d3748; font-weight: 500; }
+
+        @media (max-width: 768px) {
+            .exam-header { flex-direction: column; gap: 1rem; }
+            .exam-container { padding: 0 1rem 2rem; margin: 2rem auto; }
+            .question-card { padding: 1.5rem; }
+            .instructions-list { grid-template-columns: 1fr; }
+            .option-label { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="exam-header">
+        <div class="exam-title">
+            <i class="fas fa-file-alt"></i>
+            <div>
+                <h1>{{ exam.name }}</h1>
+                <p>{{ exam.subject.name }} • {{ questions|length }} Questions</p>
+            </div>
+        </div>
+        
+        <div class="timer-container">
+            <i class="fas fa-clock timer-icon"></i>
+            <div class="timer-text">
+                <p>Time Remaining</p>
+                <div class="timer-display" id="timer">--:--:--</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="exam-container">
+        <div class="instructions-card">
+            <div class="instructions-header">
+                <i class="fas fa-info-circle"></i>
+                <h2>Exam Instructions</h2>
+            </div>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Answer all questions carefully</p>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Once submitted, you cannot change answers</p>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-clock"></i>
+                    <p>Keep track of the time remaining</p>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-ban"></i>
+                    <p>Refreshing the page will not affect your progress</p>
+                </div>
+            </div>
+        </div>
+
+        {% if exam.allow_calculator %}
+        <div class="calculator-note">
+            <i class="fas fa-calculator"></i>
+            <p><strong>Calculator Allowed:</strong> You may use a calculator for this exam</p>
+        </div>
+        {% endif %}
+
+        <form method="POST" id="examForm">
+            {% csrf_token %}
+
+            <div class="progress-container">
+                <div class="progress-header">
+                    <h3>Exam Progress</h3>
+                    <span class="progress-stats"><span id="answered">0</span> / {{ questions|length }} Answered</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            {% for question in questions %}
+            <div class="question-card">
+                <div class="question-header">
+                    <span class="question-number">
+                        <i class="fas fa-question-circle"></i>
+                        Question {{ forloop.counter }}
+                    </span>
+                    <span class="question-marks">
+                        <i class="fas fa-star"></i> 1 Mark
+                    </span>
+                </div>
+
+                <div class="question-text">{{ question.question_text }}</div>
+
+                <div class="options-container">
+                    <div class="option-item">
+                        <input type="radio" name="{{ question.id }}" value="option1" id="q{{ question.id }}_opt1" onchange="updateProgress()">
+                        <label class="option-label" for="q{{ question.id }}_opt1">
+                            <div class="option-indicator"></div>
+                            <span class="option-letter">A.</span>
+                            <span class="option-text">{{ question.option1 }}</span>
+                        </label>
+                    </div>
+
+                    <div class="option-item">
+                        <input type="radio" name="{{ question.id }}" value="option2" id="q{{ question.id }}_opt2" onchange="updateProgress()">
+                        <label class="option-label" for="q{{ question.id }}_opt2">
+                            <div class="option-indicator"></div>
+                            <span class="option-letter">B.</span>
+                            <span class="option-text">{{ question.option2 }}</span>
+                        </label>
+                    </div>
+
+                    {% if question.option3 %}
+                    <div class="option-item">
+                        <input type="radio" name="{{ question.id }}" value="option3" id="q{{ question.id }}_opt3" onchange="updateProgress()">
+                        <label class="option-label" for="q{{ question.id }}_opt3">
+                            <div class="option-indicator"></div>
+                            <span class="option-letter">C.</span>
+                            <span class="option-text">{{ question.option3 }}</span>
+                        </label>
+                    </div>
+                    {% endif %}
+
+                    {% if question.option4 %}
+                    <div class="option-item">
+                        <input type="radio" name="{{ question.id }}" value="option4" id="q{{ question.id }}_opt4" onchange="updateProgress()">
+                        <label class="option-label" for="q{{ question.id }}_opt4">
+                            <div class="option-indicator"></div>
+                            <span class="option-letter">D.</span>
+                            <span class="option-text">{{ question.option4 }}</span>
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="submit-container">
+                <div class="warning-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Please review all your answers before submitting. This action cannot be undone.</span>
+                </div>
+                <button type="submit" class="submit-btn" onclick="return confirmSubmit()">
+                    <span>Submit Exam</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

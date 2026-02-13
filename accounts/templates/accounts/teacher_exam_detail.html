@@ -1,0 +1,530 @@
+       <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.name }} - Questions | ExamSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+       height: 100%;
+            background: 
+                url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1600&q=80') center/cover,
+                linear-gradient(135deg, rgba(102, 126, 234, 0.92) 0%, rgba(118, 75, 162, 0.92) 100%);
+            background-blend-mode: overlay;
+            z-index: -1;
+            animation: backgroundShift 25s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Header */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar-brand i {
+            font-size: 2rem;
+            color: #667eea;
+        }
+
+        .navbar-brand h1 {
+            font-size: 1.6rem;
+            color: #2d3748;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        /* Exam Header Card */
+        .exam-header-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .exam-title {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .exam-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        .exam-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .exam-meta-item i {
+            color: #667eea;
+        }
+
+        /* Add Question Form */
+        .add-question-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group textarea,
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Questions List */
+        .questions-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .question-item {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .question-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .correct-answer {
+            background: #48bb78;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .options-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .option-item.correct {
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.05);
+        }
+
+        .option-letter {
+            font-weight: 700;
+            color: #667eea;
+            min-width: 30px;
+        }
+
+        .option-text {
+            color: #4a5568;
+        }
+
+        .no-questions {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .no-questions i {
+            font-size: 4rem;
+            color: #cbd5e0;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem 2rem;
+                margin: 2rem auto;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .exam-meta {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-file-alt"></i>
+            <h1>Manage Exam Questions</h1>
+        </div>
+        <a href="{% url 'teacher_dashboard' %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Dashboard</span>
+        </a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Exam Header -->
+        <div class="exam-header-card">
+            <h1 class="exam-title">{{ exam.name }}</h1>
+            <div class="exam-meta">
+                <div class="exam-meta-item">
+                    <i class="fas fa-book"></i>
+                    <span>{{ exam.subject.name }}</span>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Add Question Form -->
+        <div class="add-question-card">
+            <div class="card-header">
+                <i class="fas fa-plus-circle"></i>
+                <h2>Add New Question</h2>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="question_text">
+                        <i class="fas fa-pen"></i> Question Text
+                    </label>
+                    <textarea 
+                        id="question_text" 
+                        name="question_text" 
+                        placeholder="Enter the question..." 
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="options-grid">
+                    <div class="form-group">
+                        <label for="option1">Option A</label>
+                        <input 
+                            type="text" 
+                            id="option1" 
+                            name="option1" 
+                            placeholder="Enter option A" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="option2">Option B</label>
+                        <input 
+                            type="text" 
+                            id="option2" 
+                            name="option2" 
+                            placeholder="Enter option B" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="option3">Option C (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="option3" 
+                            name="option3" 
+                            placeholder="Enter option C"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="option4">Option D (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="option4" 
+                            name="option4" 
+                            placeholder="Enter option D"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="correct_option">
+                        <i class="fas fa-check-circle"></i> Correct Answer
+                    </label>
+                    <select id="correct_option" name="correct_option" required>
+                        <option value="">Select correct answer</option>
+                        <option value="option1">Option A</option>
+                        <option value="option2">Option B</option>
+                        <option value="option3">Option C</option>
+                        <option value="option4">Option D</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i>
+                    <span>Add Question</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Questions List -->
+        <div class="questions-card">
+            <div class="card-header">
+                <i class="fas fa-list"></i>
+                <h2>Exam Questions ({{ questions|length }})</h2>
+            </div>
+
+            {% if questions %}
+                {% for question in questions %}
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">
+                            <i class="fas fa-hashtag"></i> {{ forloop.counter }}
+                        </span>
+                        <span class="correct-answer">
+                            <i class="fas fa-check"></i>
+                            {% if question.correct_option == 'option1' %}A
+                            {% elif question.correct_option == 'option2' %}B
+                            {% elif question.correct_option == 'option3' %}C
+                            {% elif question.correct_option == 'option4' %}D
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="question-text">
+                        {{ question.question_text }}
+                    </div>
+
+                    <div class="options-list">
+                        <div class="option-item {% if question.correct_option == 'option1' %}correct{% endif %}">
+                            <span class="option-letter">A.</span>
+                            <span class="option-text">{{ question.option1 }}</span>
+                            {% if question.correct_option == 'option1' %}
+                                <i class="fas fa-check-circle" style="margin-left: auto; color: #48bb78;"></i>
+                            {% endif %}
+                        </div>
+
+                        <div class="option-item {% if question.correct_option == 'option2' %}correct{% endif %}">
+                            <span class="option-letter">B.</span>
+                            <span class="option-text">{{ question.option2 }}</span>
+                            {% if question.correct_option == 'option2' %}
+                                <i class="fas fa-check-circle" style="margin-left: auto; color: #48bb78;"></i>
+                            {% endif %}
+                        </div>
+
+                        {% if question.option3 %}
+                        <div class="option-item {% if question.correct_option == 'option3' %}correct{% endif %}">
+                            <span class="option-letter">C.</span>
+                            <span class="option-text">{{ question.option3 }}</span>
+                            {% if question.correct_option == 'option3' %}
+                                <i class="fas fa-check-circle" style="margin-left: auto; color: #48bb78;"></i>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if question.option4 %}
+                        <div class="option-item {% if question.correct_option == 'option4' %}correct{% endif %}">
+                            <span class="option-letter">D.</span>
+                            <span class="option-text">{{ question.option4 }}</span>
+                            {% if question.correct_option == 'option4' %}
+                                <i class="fas fa-check-circle" style="margin-left: auto; color: #48bb78;"></i>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-questions">
+                    <i class="fas fa-inbox"></i>
+                    <p style="font-size: 1.2rem; margin-top: 1rem;">No questions added yet</p>
+                    <p style="margin-top: 0.5rem;">Use the form above to add your first question</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
