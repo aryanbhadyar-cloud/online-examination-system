@@ -48,7 +48,7 @@ Project Objective :
 
 Team Members Details :
 | S.No. | Name of Member     | SIC ID / Roll Number      | Email ID (GitHub)                                               | Role in Project     | Primary Skills                      |
-| ----- | ------------------ | ------------------------- | --------------------------------------------------------------- | ------------------- | ----------------------------------- |
+| ----- | ------------------ | ------------------------- | --------------------------------------------------------------- | ------------------- | ----------------------------------- 
 | 1     | Ms. Arushi Kaushal | SIC202503106 / 2301003192 | [arushilvak30@gmail.com](mailto:arushilvak30@gmail.com)         | Team Leader         | Project Management, Coordination    |
 | 2     | Mr. Furkan         | SIC202503089 / 2301003206 | [furkanfayaz65@gmail.com](mailto:furkanfayaz65@gmail.com)       | Presentation & Demo | Presentation, Communication         |
 | 3     | Mr. Aryan          | SIC202503131 / 2301003193 | [aryanbhadyar@gmail.com](mailto:aryanbhadyar@gmail.com)         | Data Lead           | Data Analysis, Data Processing      |
