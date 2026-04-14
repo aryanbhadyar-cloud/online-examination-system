@@ -17,7 +17,7 @@ A Django-based web application for managing online exams, including teacher and 
 - HTML / CSS / Bootstrap
 - SQLite (development)
 
-## Installation
+# Installation
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/online-exam-system.git
